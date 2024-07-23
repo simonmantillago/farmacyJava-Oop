@@ -1,4 +1,4 @@
-package com.farmacysystem.customer.infrastructure;
+package com.farmacysystem.customer.infrastructure.CustomerUi;
 
 import com.farmacysystem.customer.application.FindCustomerByIdUseCase;
 import com.farmacysystem.customer.domain.entity.CustomerDto;
@@ -9,11 +9,13 @@ import java.util.Optional;
 
 public class FindCustomerUi extends JFrame {
     private final FindCustomerByIdUseCase findCustomerByIdUseCase;
+    private final CustomerCrudUi customerCrudUi;
     private JTextField txtId;
     private JTextArea resultArea;
 
-    public FindCustomerUi(FindCustomerByIdUseCase findCustomerByIdUseCase) {
+    public FindCustomerUi(FindCustomerByIdUseCase findCustomerByIdUseCase, CustomerCrudUi customerCrudUi) {
         this.findCustomerByIdUseCase = findCustomerByIdUseCase;
+        this.customerCrudUi = customerCrudUi;
     }
 
     public void showFindCustomer() {
@@ -58,7 +60,10 @@ public class FindCustomerUi extends JFrame {
         add(scrollPane, gbc);
 
         JButton btnClose = new JButton("Close");
-        btnClose.addActionListener(e -> dispose());
+        btnClose.addActionListener(e -> {
+            dispose();
+            customerCrudUi.showFrame();
+        });
         addComponent(btnClose, 4, 0, 2);
     }
 

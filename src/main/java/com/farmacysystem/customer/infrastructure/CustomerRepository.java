@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -80,19 +81,43 @@ public class CustomerRepository implements CustomerService {
 
         @Override
         public Customer deleteCustomer(String id) {
-            String query = "DELETE FROM customers WHERE identificationNumber = ?";
-            try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setString(1, id);
-                int rowsAffected = ps.executeUpdate();
-                if (rowsAffected > 0) {
-                    System.out.println("Customer deleted successfully!");
-                    // Nota: Aquí deberías primero obtener el Customer antes de eliminarlo
-                    // para poder devolverlo. Por simplicidad, estamos devolviendo null.
-                    return null;
-                } else {
-                    System.out.println("Customer deletion failed. Customer not found.");
-                    return null;
+            Customer customer = null;
+            String selectQuery = "SELECT * FROM customers WHERE identificationNumber = ?";
+            String deleteQuery = "DELETE FROM customers WHERE identificationNumber = ?";
+            
+            try (PreparedStatement selectPs = connection.prepareStatement(selectQuery);
+                PreparedStatement deletePs = connection.prepareStatement(deleteQuery)) {
+                
+                // First, fetch the customer
+                selectPs.setString(1, id);
+                try (ResultSet rs = selectPs.executeQuery()) {
+                    if (rs.next()) {
+                        customer = new Customer(
+                            rs.getString("identificationNumber"),
+                            rs.getString("typeID"),
+                            rs.getString("firstName"),
+                            rs.getString("lastName"),
+                            rs.getInt("age"),
+                            rs.getString("birthDate"),
+                            rs.getInt("cityID"),
+                            rs.getInt("neighborhoodID"),
+                            rs.getString("registrationDate")
+                        );
+                    }
                 }
+                
+                // If customer exists, delete it
+                if (customer != null) {
+                    deletePs.setString(1, id);
+                    int rowsAffected = deletePs.executeUpdate();
+                    if (rowsAffected > 0) {
+                        System.out.println("Customer deleted successfully!");
+                        return customer;
+                    }
+                }
+                
+                System.out.println("Customer deletion failed. Customer not found.");
+                return null;
             } catch (SQLException e) {
                 e.printStackTrace();
                 return null;
@@ -133,7 +158,36 @@ public class CustomerRepository implements CustomerService {
 
 
     @Override
-    public List<Customer> findAllCustomer() {
-        throw new UnsupportedOperationException("Unimplemented method 'findAllCustomer'");
+    public List<CustomerDto> findAllCustomer() {
+        List<CustomerDto> customers = new ArrayList<>();
+        String query = "SELECT c.identificationNumber, c.typeID, c.firstName, c.lastName, c.age, c.birthDate, c.cityID, c.neighborhoodID, " +
+                    "ci.cityName, n.neighborhoodName " +
+                    "FROM customers c " +
+                    "JOIN cities ci ON c.cityID = ci.cityID " +
+                    "JOIN neighborhoods n ON c.neighborhoodID = n.neighborhoodID";
+        
+        try (PreparedStatement ps = connection.prepareStatement(query);
+            ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                CustomerDto customerDto = new CustomerDto(
+                    rs.getString("identificationNumber"),
+                    rs.getString("typeID"),
+                    rs.getString("firstName"),
+                    rs.getString("lastName"),
+                    rs.getInt("age"),
+                    rs.getString("birthDate"),
+                    rs.getInt("cityID"),
+                    rs.getInt("neighborhoodID"),
+                    rs.getString("cityName"),
+                    rs.getString("neighborhoodName")
+                );
+                customers.add(customerDto);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return customers;
     }
 }

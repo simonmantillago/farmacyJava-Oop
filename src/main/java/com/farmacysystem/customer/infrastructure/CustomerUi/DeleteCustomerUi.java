@@ -1,4 +1,4 @@
-package com.farmacysystem.customer.infrastructure;
+package com.farmacysystem.customer.infrastructure.CustomerUi;
 
 import com.farmacysystem.customer.application.DeleteCustomerUseCase;
 import com.farmacysystem.customer.domain.entity.Customer;
@@ -8,11 +8,13 @@ import java.awt.*;
 
 public class DeleteCustomerUi extends JFrame {
     private final DeleteCustomerUseCase deleteCustomerUseCase;
+    private final CustomerCrudUi customerCrudUi;
     private JTextField txtId;
     private JTextArea resultArea;
 
-    public DeleteCustomerUi(DeleteCustomerUseCase deleteCustomerUseCase) {
+    public DeleteCustomerUi(DeleteCustomerUseCase deleteCustomerUseCase,CustomerCrudUi customerCrudUi) {
         this.deleteCustomerUseCase = deleteCustomerUseCase;
+        this.customerCrudUi = customerCrudUi;
     }
 
     public void showDeleteCustomer() {
@@ -57,7 +59,10 @@ public class DeleteCustomerUi extends JFrame {
         add(scrollPane, gbc);
 
         JButton btnClose = new JButton("Close");
-        btnClose.addActionListener(e -> dispose());
+        btnClose.addActionListener(e -> {
+            dispose();
+            customerCrudUi.showFrame();
+        });
         addComponent(btnClose, 4, 0, 2);
     }
 
@@ -87,7 +92,8 @@ public class DeleteCustomerUi extends JFrame {
                 "Age: %d\n" +
                 "Birth Date: %s\n" +
                 "City ID: %d\n" +
-                "Neighborhood ID: %d",
+                "Neighborhood ID: %d\n" +
+                "Registration Date: %s",
                 deletedCustomer.getIdentificationNumber(),
                 deletedCustomer.getTypeID(),
                 deletedCustomer.getFirstName(),
@@ -95,7 +101,8 @@ public class DeleteCustomerUi extends JFrame {
                 deletedCustomer.getAge(),
                 deletedCustomer.getBirthDate(),
                 deletedCustomer.getCityID(),
-                deletedCustomer.getNeighborhoodID()
+                deletedCustomer.getNeighborhoodID(),
+                deletedCustomer.getRegistrationDate()
             );
             resultArea.setText(message);
         } else {

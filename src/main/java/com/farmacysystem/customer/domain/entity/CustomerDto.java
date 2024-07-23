@@ -11,6 +11,7 @@ public class CustomerDto {
     private int NeighborhoodID;
     private String cityName;
     private String neighborhoodName;
+    
 
     public CustomerDto(String identificationNumber, String typeDescription, String firstName, String lastName, int age,
             String birthDate, int cityID, int neighborhoodID, String cityName, String neighborhoodName) {

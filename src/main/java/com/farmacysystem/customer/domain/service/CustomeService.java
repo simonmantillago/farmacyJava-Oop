@@ -13,7 +13,7 @@ public class CustomeService {
         void updateCustomer(Customer Customer);
         Customer deleteCustomer(String id);
         Optional<CustomerDto> findCustomerById(String id);
-        List<Customer> findAllCustomer();
+        List<CustomerDto> findAllCustomer();
         
     }
 }
